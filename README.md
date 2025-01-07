@@ -16,7 +16,7 @@ This repository contains scripts and dependencies to extract and visualize carbo
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-repo-name.git
+   git clone https://github.com/hilalrd/Polutan.git
    cd your-repo-name
    ```
 

@@ -17,6 +17,26 @@ def find_file(extension):
         raise FileNotFoundError(f"No .{extension} file found in the current directory.")
     return files[0]
 
+def nc_to_dataframe(nc_file, variables, time_index=0):
+    """Extract data from NetCDF and save as a DataFrame."""
+    ds = xr.open_dataset(nc_file, group='PRODUCT')
+    missing_vars = [var for var in variables if var not in ds]
+    if missing_vars:
+        raise ValueError(f"Variables not found in file: {missing_vars}")
+    
+    data_dict = {}
+    for var in variables:
+        data_array = ds[var].isel(time=time_index).values
+        data_dict[var] = data_array.flatten()
+
+    data_dict['latitude'] = ds['latitude'].values.flatten()
+    data_dict['longitude'] = ds['longitude'].values.flatten()
+
+    df = pd.DataFrame(data_dict)
+    df = df.dropna()
+
+    return df
+
 def plot_co_dki_jakarta(co_file_path, shapefile_path):
     # Load shapefile for DKI Jakarta
     dki_jakarta = gpd.read_file(shapefile_path)
@@ -77,6 +97,16 @@ if __name__ == "__main__":
     # Automatically locate files
     nc_file = find_file("nc")
     shp_file = find_file("shp")
+
+    # Extract data and save to CSV
+    variables = [
+        "carbonmonoxide_total_column",
+        "carbonmonoxide_total_column_precision",
+        "carbonmonoxide_total_column_corrected"
+    ]
+    dataframe = nc_to_dataframe(nc_file, variables)
+    dataframe.to_csv("CO_Data_Extracted.csv", index=False)
+    print("Data saved to CO_Data_Extracted.csv")
 
     # Generate plot for CO data in DKI Jakarta
     plot_co_dki_jakarta(nc_file, shp_file)

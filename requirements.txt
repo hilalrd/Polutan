@@ -1,0 +1,9 @@
+
+xarray
+netCDF4
+numpy
+pandas
+matplotlib
+cartopy
+rasterio
+geopandas
